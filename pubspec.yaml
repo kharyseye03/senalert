@@ -1,0 +1,83 @@
+name: sen_alert
+description: Application de signalement d'incidents à la police
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+# ─────────────────────────────────────────
+#  DÉPENDANCES
+# ─────────────────────────────────────────
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # ── Navigation ─────────────────────────
+  go_router: ^13.2.0
+
+  # ── State management ───────────────────
+  flutter_riverpod: ^2.4.9
+  riverpod_annotation: ^2.3.3
+
+  # ── Fonts ──────────────────────────────
+  google_fonts: ^6.1.0
+
+  # ── GPS & Localisation ─────────────────
+  geolocator: ^11.0.0
+  geocoding: ^3.0.0
+
+  # ── Médias ─────────────────────────────
+  image_picker: ^1.0.7
+
+  # ── Réseau ─────────────────────────────
+  dio: ^5.4.0
+
+  # ── Stockage local ─────────────────────
+  shared_preferences: ^2.2.2
+  flutter_secure_storage: ^9.0.0
+
+  # ── UI ─────────────────────────────────
+  smooth_page_indicator: ^1.1.0   # dots onboarding
+  lottie: ^3.0.0                  # animations JSON
+  flutter_svg: ^2.0.9
+  shimmer: ^3.0.0                 # skeleton loading
+
+  # ── Utilitaires ────────────────────────
+  intl: ^0.19.0
+  uuid: ^4.3.3
+  connectivity_plus: ^5.0.2
+  permission_handler: ^11.2.0
+  flutter_local_notifications: ^17.0.0
+
+# ─────────────────────────────────────────
+#  DÉPENDANCES DE DEV
+# ─────────────────────────────────────────
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  build_runner: ^2.4.8
+  riverpod_generator: ^2.3.9
+
+# ─────────────────────────────────────────
+#  ASSETS & FONTS
+# ─────────────────────────────────────────
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+
+  fonts:
+    - family: DMSans
+      fonts:
+        - asset: assets/fonts/DMSans/static/DMSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/DMSans/static/DMSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/DMSans/static/DMSans-SemiBold.ttf
+          weight: 600
