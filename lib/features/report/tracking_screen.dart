@@ -1,8 +1,3 @@
-// ============================================================
-//  AlertCitoyen — Suivi de signalement
-//  Fichier : lib/features/tracking/tracking_screen.dart
-// ============================================================
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
@@ -22,17 +17,28 @@ class _TrackingScreenState extends State<TrackingScreen> {
   final _refController = TextEditingController();
   bool  _hasResult     = false;
   bool  _notFound      = false;
+  bool _isLoading  = false;
 
-  void _onSearch() {
+  void _onSearch() async {
     final ref = _refController.text.trim();
     if (ref.isEmpty) return;
 
-    // Simulation statique — en prod : appel API
     setState(() {
+      _isLoading = true;
+      _hasResult = false;
+      _notFound  = false;
+    });
+
+    // Simulation loading 1.5s — remplace par appel API
+    await Future.delayed(const Duration(milliseconds: 1500));
+
+    setState(() {
+      _isLoading = false;
       _notFound  = ref.toLowerCase() == 'test404';
       _hasResult = !_notFound;
     });
   }
+
 
   @override
   void dispose() {
@@ -41,49 +47,38 @@ class _TrackingScreenState extends State<TrackingScreen> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     final r = AppResponsive(context);
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Stack(
+      body: Column(
         children: [
-          const DecoCirclesTop(),
-          Column(
-            children: [
-              _TrackingHeader(r: r),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: r.pagePadding),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: r.spacing(small: 16, normal: 20, large: 24)),
-
-                      // Champ de recherche
-                      _SearchBox(
-                        controller: _refController,
-                        onSearch:   _onSearch,
-                      ),
-
-                      SizedBox(height: r.spacing(small: 16, normal: 20, large: 24)),
-
-                      // Résultat
-                      if (_hasResult) ...[
-                        const _SectionLabel(label: 'Résultat'),
-                        const SizedBox(height: AppSpacing.md),
-                        const _ResultCard(),
-                      ],
-
-                      if (_notFound)
-                        _NotFoundCard(),
-
-                      SizedBox(height: r.spacing(small: 28, normal: 36, large: 44)),
-                    ],
+          _TrackingHeader(r: r),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: r.pagePadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: r.spacing(small: 16, normal: 20, large: 24)),
+                  _SearchBox(
+                    controller: _refController,
+                    onSearch:   _onSearch,
+                    isLoading:  _isLoading,
                   ),
-                ),
+                  SizedBox(height: r.spacing(small: 16, normal: 20, large: 24)),
+                  if (_hasResult) ...[
+                    const _SectionLabel(label: 'Résultat'),
+                    const SizedBox(height: AppSpacing.md),
+                    const _ResultCard(),
+                  ],
+                  if (_notFound) const _NotFoundCard(),
+                  SizedBox(height: r.spacing(small: 28, normal: 36, large: 44)),
+                ],
               ),
-            ],
+            ),
           ),
         ],
       ),
@@ -101,41 +96,54 @@ class _TrackingHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.primary,
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(r.pagePadding, 12, r.pagePadding, 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              GestureDetector(
-                onTap: () => context.pop(),
-                child: Container(
-                  width:      32,
-                  height:     32,
-                  decoration: BoxDecoration(
-                    color:        AppColors.decoOnRed1,
-                    borderRadius: AppRadius.input,
-                  ),
-                  child: const Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: AppColors.textOnPrimary,
-                    size:  16,
+    return SizedBox(
+      width: double.infinity,
+      child: ColoredBox(
+        color: AppColors.primary,
+        child: SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(r.pagePadding, 12, r.pagePadding, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                InkWell(
+                  onTap: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.goNamed('portal');
+                    }
+                  },
+                  borderRadius: AppRadius.input,
+                  child: Container(
+                    width:      32,
+                    height:     32,
+                    decoration: BoxDecoration(
+                      color:        Colors.white.withOpacity(0.18),
+                      borderRadius: AppRadius.input,
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: AppColors.textOnPrimary,
+                      size:  16,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Text(
-                'Suivi de dossier',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textOnPrimary.withOpacity(0.65),
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  'Suivi de dossier',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textOnPrimary.withOpacity(0.65),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 3),
-              Text('Où en est\nvotre dossier ?', style: AppTextStyles.screenTitle),
-            ],
+                const SizedBox(height: 3),
+                Text(
+                  'Où en est votre dossier ?',
+                  style: AppTextStyles.screenTitle,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -149,8 +157,14 @@ class _TrackingHeader extends StatelessWidget {
 
 class _SearchBox extends StatelessWidget {
   final TextEditingController controller;
-  final VoidCallback          onSearch;
-  const _SearchBox({required this.controller, required this.onSearch});
+  final VoidCallback onSearch;
+  final bool isLoading;
+
+  const _SearchBox({
+    required this.controller,
+    required this.onSearch,
+    required this.isLoading,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -189,7 +203,7 @@ class _SearchBox extends StatelessWidget {
                       hintStyle:      AppTextStyles.bodyMedium.copyWith(
                         color: AppColors.textDisabled,
                       ),
-                      border:         InputBorder.none,
+                      border: InputBorder.none,
                       enabledBorder:  InputBorder.none,
                       focusedBorder:  InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
@@ -209,8 +223,17 @@ class _SearchBox extends StatelessWidget {
             width:  double.infinity,
             height: 46,
             child: ElevatedButton(
-              onPressed: onSearch,
-              child: Text('Rechercher', style: AppTextStyles.buttonLabel),
+              onPressed: isLoading ? null : onSearch,
+              child: isLoading
+                  ? const SizedBox(
+                width:  20,
+                height: 20,
+                child:  CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color:       AppColors.textOnPrimary,
+                ),
+              )
+                  : Text('Rechercher', style: AppTextStyles.buttonLabel),
             ),
           ),
         ],
@@ -466,6 +489,9 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(label.toUpperCase(), style: AppTextStyles.sectionLabel);
+    return Text(
+      label,
+      style: AppTextStyles.bodySemiBold.copyWith(fontSize: 15),
+    );
   }
 }

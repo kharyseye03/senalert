@@ -26,19 +26,23 @@ class AppColors {
   static const Color infoLight     = Color(0xFFEAF1FB);
 
   // ── Fonds ───────────────────────────────────────
-  static const Color background    = Color(0xFFF2EDE8); // beige chaud
+  static const Color background    = Color(0xFFF7F4F1); // beige chaud
   static const Color surface       = Color(0xFFFDFCFB); // blanc cassé
   static const Color surfaceAlt    = Color(0xFFEDE8E2); // fond inputs
 
   // ── Cercles décoratifs ──────────────────────────
-  static const Color deco1         = Color(0xFFEDE8E2);
-  static const Color deco2         = Color(0xFFE5DED6);
-  static const Color deco3         = Color(0xFFDDD6CC);
+  static const Color deco1         = Color(0xFFF2EFEC);
+  static const Color deco2         = Color(0xFFEDE9E5);
+  static const Color deco3         = Color(0xFFE8E3DF);
 
   // ── Cercles déco sur fond rouge ─────────────────
   static const Color decoOnRed1    = Color(0x1AFFFFFF); // 10%
   static const Color decoOnRed2    = Color(0x14FFFFFF); // 8%
   static const Color decoOnRed3    = Color(0x0FFFFFFF); // 6%
+
+
+
+
 
   // ── Textes ──────────────────────────────────────
   static const Color textPrimary   = Color(0xFF2C2420);
