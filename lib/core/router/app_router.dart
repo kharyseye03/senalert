@@ -4,6 +4,7 @@ import '../../features/auth/otp_screen.dart';
 import '../../features/auth/phone_screen.dart';
 import '../../features/auth/pin_screen.dart';
 import '../../features/profil/citoyen/dashabord/dashbaord_citoyen.dart';
+import '../../features/profil/citoyen/recompense/recompenses_screen.dart';
 import '../../features/report/tracking_screen.dart';
 import '../../features/starter/onbaording_screen.dart';
 import '../../features/starter/portal_screen.dart';
@@ -93,6 +94,12 @@ class AppRouter {
           path:    AppRoutes.dashboard,
           name:    'dashboard',
           builder: (context, state) => const DashboardScreen(),
+        ),
+
+        GoRoute(
+          path:    '/recompenses',
+          name:    'recompenses',
+          builder: (context, state) => const RecompensesScreen(),
         ),
         GoRoute(
           path:    AppRoutes.register,
