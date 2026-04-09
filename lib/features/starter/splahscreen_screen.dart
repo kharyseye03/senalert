@@ -82,7 +82,7 @@ class _SplashScreenState extends State<SplashScreen>
 
                     // Nom de l'app
                     Text(
-                      'AlertCitoyen',
+                      'SenAlerte',
                       style: AppTextStyles.heroTitle.copyWith(
                         fontSize: r.heroFontSize,
                       ),

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/auth/otp_screen.dart';
+import '../../features/auth/phone_screen.dart';
+import '../../features/auth/pin_screen.dart';
+import '../../features/profil/citoyen/dashabord/dashbaord_citoyen.dart';
+import '../../features/profil/citoyen/recompense/recompenses_screen.dart';
 import '../../features/report/tracking_screen.dart';
 import '../../features/starter/onbaording_screen.dart';
 import '../../features/starter/portal_screen.dart';
@@ -20,6 +25,7 @@ class AppRoutes {
   static const String login        = '/login';
   static const String register     = '/register';
   static const String profile      = '/profile';
+  static const String dashboard      = '/dashboard';
 }
 
 class AppRouter {
@@ -27,7 +33,7 @@ class AppRouter {
 
   static GoRouter create() {
     return GoRouter(
-      initialLocation: AppRoutes.splash,
+      initialLocation: AppRoutes.dashboard,
       routes: [
         GoRoute(
           path:    AppRoutes.splash,
@@ -54,7 +60,7 @@ class AppRouter {
               name:    'confirmation',
               builder: (context, state) {
                 final ref = state.extra as String? ?? '#DK-2024-0000';
-                return ConfirmationScreen(refNumber: ref);
+                return ConfirmationSheet(refNumber: ref);
               },
             ),
           ],
@@ -67,7 +73,33 @@ class AppRouter {
         GoRoute(
           path:    AppRoutes.login,
           name:    'login',
-          builder: (context, state) => const _Placeholder('Connexion'),
+          builder: (context, state) => const PhoneScreen(),
+          routes: [
+            GoRoute(
+              path:    'otp',
+              name:    'otp',
+              builder: (context, state) {
+                final phone = state.extra as String? ?? '';
+                return OtpScreen(phoneNumber: phone);
+              },
+            ),
+            GoRoute(
+              path:    'pin',
+              name:    'pin',
+              builder: (context, state) => const PinScreen(),
+            ),
+          ],
+        ),
+        GoRoute(
+          path:    AppRoutes.dashboard,
+          name:    'dashboard',
+          builder: (context, state) => const DashboardScreen(),
+        ),
+
+        GoRoute(
+          path:    '/recompenses',
+          name:    'recompenses',
+          builder: (context, state) => const RecompensesScreen(),
         ),
         GoRoute(
           path:    AppRoutes.register,
