@@ -1,8 +1,3 @@
-// ============================================================
-//  AlertCitoyen — Portail d'accueil
-//  Fichier : lib/features/portal/portal_screen.dart
-// ============================================================
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -188,7 +183,7 @@ class _SecondaryGrid extends StatelessWidget {
         Expanded(
           child: _ActionCard(
             icon:      Icons.manage_search_rounded,
-            label:     'Suivre un\nsignalement',
+            label:     'Suivre une alerte',
             sub:       'Via référence',
             iconBg:    AppColors.infoLight,
             iconColor: AppColors.info,
@@ -199,7 +194,7 @@ class _SecondaryGrid extends StatelessWidget {
         Expanded(
           child: _ActionCard(
             icon:      Icons.person_outline_rounded,
-            label:     'Mon\nespace',
+            label:     'Mon espace',
             sub:       'Connexion',
             iconBg:    AppColors.successLight,
             iconColor: AppColors.success,

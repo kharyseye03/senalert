@@ -5,11 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/app_dimensions.dart';
 import '../../core/responsive/app_responsive.dart';
-import '../../widget/deco_circles.dart';
-
-// ─────────────────────────────────────────
-//  MODÈLE — Type d'incident
-// ─────────────────────────────────────────
+import 'confirmation_screen.dart';
 
 class _IncidentType {
   final String emoji;
@@ -26,10 +22,6 @@ const _types = [
   _IncidentType(emoji: '📋', label: 'Autre'),
 ];
 
-// ─────────────────────────────────────────
-//  ÉCRAN PRINCIPAL
-// ─────────────────────────────────────────
-
 class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key});
 
@@ -38,11 +30,9 @@ class ReportScreen extends StatefulWidget {
 }
 
 class _ReportScreenState extends State<ReportScreen> {
-  // État du formulaire
-  int     _selectedType = 0;
-  bool    _isAnonymous  = true;
+  int  _selectedType = 0;
+  bool _isAnonymous  = true;
 
-  // Contrôleurs
   final _descController   = TextEditingController();
   final _prenomController = TextEditingController();
   final _nomController    = TextEditingController();
@@ -58,7 +48,6 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   void _onSubmit() {
-    // Validation basique
     if (!_isAnonymous) {
       if (_prenomController.text.trim().isEmpty ||
           _nomController.text.trim().isEmpty   ||
@@ -77,8 +66,30 @@ class _ReportScreenState extends State<ReportScreen> {
         return;
       }
     }
-    // Navigation vers confirmation
-    context.goNamed('confirmation', extra: '#DK-2024-${DateTime.now().millisecond.toString().padLeft(4, '0')}');
+
+    if (_descController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Veuillez ajouter une description.',
+            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textOnPrimary),
+          ),
+          backgroundColor: AppColors.textPrimary,
+          behavior:        SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.card),
+        ),
+      );
+      return;
+    }
+
+    final ref = '#DK-2024-${DateTime.now().millisecond.toString().padLeft(4, '0')}';
+    showModalBottomSheet(
+      context:            context,
+      isScrollControlled: true,
+      backgroundColor:    Colors.transparent,
+      isDismissible:      false,
+      builder:            (_) => ConfirmationSheet(refNumber: ref),
+    );
   }
 
   @override
@@ -87,83 +98,77 @@ class _ReportScreenState extends State<ReportScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Stack(
+      body: Column(
         children: [
-          const DecoCirclesTop(),
-          Column(
-            children: [
-              // Header rouge
-              _RedHeader(r: r),
-
-              // Formulaire scrollable
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: r.pagePadding),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: r.spacing(small: 14, normal: 16, large: 20)),
-
-                      // ① Anonyme en premier
-                      _AnonymousToggle(
-                        isAnonymous: _isAnonymous,
-                        onChanged:   (v) => setState(() => _isAnonymous = v),
-                      ),
-
-                      // Bloc identité — visible si non anonyme
-                      AnimatedSize(
-                        duration: const Duration(milliseconds: 300),
-                        curve:    Curves.easeInOut,
-                        child: _isAnonymous
-                            ? const SizedBox.shrink()
-                            : _IdentityFields(
-                          prenomController: _prenomController,
-                          nomController:    _nomController,
-                          telController:    _telController,
-                        ),
-                      ),
-
-                      SizedBox(height: r.spacing(small: 14, normal: 16, large: 20)),
-
-                      // ② Type d'incident
-                      const _SectionLabel(label: 'Type d\'incident'),
-                      const SizedBox(height: AppSpacing.sm),
-                      _IncidentTypeGrid(
-                        selected:   _selectedType,
-                        onSelected: (i) => setState(() => _selectedType = i),
-                      ),
-
-                      SizedBox(height: r.spacing(small: 14, normal: 16, large: 20)),
-
-                      // ③ Localisation
-                      const _SectionLabel(label: 'Localisation'),
-                      const SizedBox(height: AppSpacing.sm),
-                      const _LocationField(),
-
-                      SizedBox(height: r.spacing(small: 14, normal: 16, large: 20)),
-
-                      // ④ Description
-                      const _SectionLabel(label: 'Description (optionnel)'),
-                      const SizedBox(height: AppSpacing.sm),
-                      _DescriptionField(controller: _descController),
-
-                      SizedBox(height: r.spacing(small: 14, normal: 16, large: 20)),
-
-                      // ⑤ Photo
-                      const _SectionLabel(label: 'Photo (optionnel)'),
-                      const SizedBox(height: AppSpacing.sm),
-                      const _PhotoField(),
-
-                      SizedBox(height: r.spacing(small: 24, normal: 28, large: 36)),
-                    ],
-                  ),
-                ),
+          _RedHeader(r: r),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                r.pagePadding,
+                r.spacing(small: 20, normal: 24, large: 28),
+                r.pagePadding,
+                r.spacing(small: 20, normal: 24, large: 28),
               ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
 
-              // Bouton envoyer
-              _SubmitButton(onTap: _onSubmit, r: r),
-            ],
+                  // ① Toggle anonyme
+                  _AnonymousToggle(
+                    isAnonymous: _isAnonymous,
+                    onChanged:   (v) => setState(() => _isAnonymous = v),
+                  ),
+
+                  // Bloc identité animé
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 300),
+                    curve:    Curves.easeInOut,
+                    child: _isAnonymous
+                        ? const SizedBox.shrink()
+                        : _IdentitySection(
+                      prenomController: _prenomController,
+                      nomController:    _nomController,
+                      telController:    _telController,
+                    ),
+                  ),
+
+                  const SizedBox(height: AppSpacing.xl),
+
+                  // ② Type d'incident
+                  const _FieldLabel(text: 'Type d\'incident', required: true),
+                  const SizedBox(height: AppSpacing.sm),
+                  _IncidentTypeGrid(
+                    selected:   _selectedType,
+                    onSelected: (i) => setState(() => _selectedType = i),
+                  ),
+
+                  const SizedBox(height: AppSpacing.xl),
+
+                  // ③ Localisation
+                  const _FieldLabel(text: 'Localisation', required: true),
+                  const SizedBox(height: AppSpacing.sm),
+                  const _LocationField(),
+
+                  const SizedBox(height: AppSpacing.xl),
+
+                  // ④ Description
+                  const _FieldLabel(text: 'Description', required: true),
+                  const SizedBox(height: AppSpacing.sm),
+                  _DescriptionField(controller: _descController),
+
+                  const SizedBox(height: AppSpacing.xl),
+
+                  // ⑤ Photo
+                  const _FieldLabel(text: 'Photo', required: false),
+                  const SizedBox(height: AppSpacing.sm),
+                  const _PhotoField(),
+
+                  const SizedBox(height: AppSpacing.xxxl),
+                ],
+              ),
+            ),
           ),
+          _SubmitButton(onTap: _onSubmit, r: r),
         ],
       ),
     );
@@ -171,7 +176,7 @@ class _ReportScreenState extends State<ReportScreen> {
 }
 
 // ─────────────────────────────────────────
-//  HEADER ROUGE
+//  HEADER ROUGE — pleine largeur
 // ─────────────────────────────────────────
 
 class _RedHeader extends StatelessWidget {
@@ -180,47 +185,85 @@ class _RedHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.primary,
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(r.pagePadding, 12, r.pagePadding, 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Bouton retour
-              GestureDetector(
-                onTap: () => context.pop(),
-                child: Container(
-                  width:      32,
-                  height:     32,
-                  decoration: BoxDecoration(
-                    color:        AppColors.decoOnRed1,
-                    borderRadius: AppRadius.input,
-                  ),
-                  child: const Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: AppColors.textOnPrimary,
-                    size:  16,
+    return SizedBox(
+      width: double.infinity,
+      child: ColoredBox(
+        color: AppColors.primary,
+        child: SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(r.pagePadding, 12, r.pagePadding, 22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                InkWell(
+                  onTap: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.goNamed('portal');
+                    }
+                  },
+                  borderRadius: AppRadius.input,
+                  child: Container(
+                    width:      34,
+                    height:     34,
+                    decoration: BoxDecoration(
+                      color:        Colors.white.withOpacity(0.18),
+                      borderRadius: AppRadius.input,
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: AppColors.textOnPrimary,
+                      size:  16,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Text(
-                'Nouveau signalement',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textOnPrimary.withOpacity(0.65),
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  'Nouveau signalement',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textOnPrimary.withOpacity(0.65),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                'Que s\'est-il\npassé ?',
-                style: AppTextStyles.screenTitle,
-              ),
-            ],
+                const SizedBox(height: 4),
+                Text('Que s\'est-il passé ?', style: AppTextStyles.screenTitle),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────
+//  LABEL DE CHAMP avec * obligatoire
+// ─────────────────────────────────────────
+
+class _FieldLabel extends StatelessWidget {
+  final String text;
+  final bool   required;
+  const _FieldLabel({super.key, required this.text, required this.required});
+
+  @override
+  Widget build(BuildContext context) {
+    return RichText(
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text:  text,
+            style: AppTextStyles.bodySemiBold.copyWith(fontSize: 14),
+          ),
+          if (required)
+            TextSpan(
+              text:  ' *',
+              style: AppTextStyles.bodySemiBold.copyWith(
+                fontSize: 14,
+                color:    AppColors.primary,
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -231,14 +274,17 @@ class _RedHeader extends StatelessWidget {
 // ─────────────────────────────────────────
 
 class _AnonymousToggle extends StatelessWidget {
-  final bool              isAnonymous;
+  final bool               isAnonymous;
   final ValueChanged<bool> onChanged;
   const _AnonymousToggle({required this.isAnonymous, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding:    const EdgeInsets.all(AppSpacing.cardPadding),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical:   AppSpacing.md,
+      ),
       decoration: BoxDecoration(
         color:        AppColors.surface,
         borderRadius: AppRadius.card,
@@ -246,26 +292,12 @@ class _AnonymousToggle extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width:      40,
-            height:     40,
-            decoration: BoxDecoration(
-              color:        isAnonymous ? AppColors.successLight : AppColors.primaryLight,
-              borderRadius: AppRadius.input,
-            ),
-            child: Icon(
-              isAnonymous ? Icons.visibility_off_rounded : Icons.person_outline_rounded,
-              color: isAnonymous ? AppColors.success : AppColors.primary,
-              size:  20,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Signalement anonyme', style: AppTextStyles.bodySemiBold),
-                const SizedBox(height: 2),
+                const SizedBox(height: 3),
                 Text(
                   isAnonymous
                       ? 'Votre identité reste confidentielle'
@@ -276,9 +308,9 @@ class _AnonymousToggle extends StatelessWidget {
             ),
           ),
           Switch.adaptive(
-            value:           isAnonymous,
-            onChanged:       onChanged,
-            activeColor:     AppColors.success,
+            value:              isAnonymous,
+            onChanged:          onChanged,
+            activeColor:        AppColors.success,
             inactiveThumbColor: AppColors.textHint,
             inactiveTrackColor: AppColors.surfaceAlt,
           ),
@@ -289,15 +321,15 @@ class _AnonymousToggle extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────
-//  CHAMPS IDENTITÉ
+//  SECTION IDENTITÉ
 // ─────────────────────────────────────────
 
-class _IdentityFields extends StatelessWidget {
+class _IdentitySection extends StatelessWidget {
   final TextEditingController prenomController;
   final TextEditingController nomController;
   final TextEditingController telController;
 
-  const _IdentityFields({
+  const _IdentitySection({
     required this.prenomController,
     required this.nomController,
     required this.telController,
@@ -305,103 +337,89 @@ class _IdentityFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin:     const EdgeInsets.only(top: AppSpacing.md),
-      padding:    const EdgeInsets.all(AppSpacing.cardPadding),
-      decoration: BoxDecoration(
-        color:        AppColors.surface,
-        borderRadius: AppRadius.card,
-        border:       Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.person_outline_rounded, size: 14, color: AppColors.textHint),
-              const SizedBox(width: AppSpacing.sm),
-              Text('Vos informations', style: AppTextStyles.sectionLabel),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          _InputField(
-            controller:  prenomController,
-            hint:        'Prénom',
-            icon:        Icons.badge_outlined,
-            inputType:   TextInputType.name,
-            capitalization: TextCapitalization.words,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          _InputField(
-            controller:  nomController,
-            hint:        'Nom de famille',
-            icon:        Icons.badge_outlined,
-            inputType:   TextInputType.name,
-            capitalization: TextCapitalization.words,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          _InputField(
-            controller: telController,
-            hint:       'Numéro de téléphone',
-            icon:       Icons.phone_outlined,
-            inputType:  TextInputType.phone,
-            formatters: [FilteringTextInputFormatter.digitsOnly],
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: AppSpacing.xl),
+        const _FieldLabel(text: 'Prénom', required: true),
+        const SizedBox(height: AppSpacing.sm),
+        _SimpleInput(
+          controller:     prenomController,
+          hint:           'Votre prénom',
+          inputType:      TextInputType.name,
+          capitalization: TextCapitalization.words,
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        const _FieldLabel(text: 'Nom de famille', required: true),
+        const SizedBox(height: AppSpacing.sm),
+        _SimpleInput(
+          controller:     nomController,
+          hint:           'Votre nom',
+          inputType:      TextInputType.name,
+          capitalization: TextCapitalization.words,
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        const _FieldLabel(text: 'Numéro de téléphone', required: true),
+        const SizedBox(height: AppSpacing.sm),
+        _SimpleInput(
+          controller: telController,
+          hint:       '77 XXX XX XX',
+          inputType:  TextInputType.phone,
+          formatters: [FilteringTextInputFormatter.digitsOnly],
+        ),
+      ],
     );
   }
 }
 
-class _InputField extends StatelessWidget {
-  final TextEditingController      controller;
-  final String                     hint;
-  final IconData                   icon;
-  final TextInputType              inputType;
-  final TextCapitalization         capitalization;
-  final List<TextInputFormatter>?  formatters;
+// ─────────────────────────────────────────
+//  INPUT SIMPLE — épuré
+// ─────────────────────────────────────────
 
-  const _InputField({
+class _SimpleInput extends StatelessWidget {
+  final TextEditingController     controller;
+  final String                    hint;
+  final TextInputType             inputType;
+  final TextCapitalization        capitalization;
+  final List<TextInputFormatter>? formatters;
+
+  const _SimpleInput({
     required this.controller,
     required this.hint,
-    required this.icon,
-    this.inputType     = TextInputType.text,
+    this.inputType      = TextInputType.text,
     this.capitalization = TextCapitalization.none,
     this.formatters,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color:        AppColors.background,
-        borderRadius: AppRadius.input,
-        border:       Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        children: [
-          const SizedBox(width: AppSpacing.md),
-          Icon(icon, size: 16, color: AppColors.textHint),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: TextField(
-              controller:          controller,
-              keyboardType:        inputType,
-              textCapitalization:  capitalization,
-              inputFormatters:     formatters,
-              style:               AppTextStyles.bodyMedium,
-              decoration: InputDecoration(
-                hintText:       hint,
-                hintStyle:      AppTextStyles.bodyMedium.copyWith(color: AppColors.textDisabled),
-                border:         InputBorder.none,
-                enabledBorder:  InputBorder.none,
-                focusedBorder:  InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-              ),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-        ],
+    return TextField(
+      controller:         controller,
+      keyboardType:       inputType,
+      textCapitalization: capitalization,
+      inputFormatters:    formatters,
+      style:              AppTextStyles.bodyMedium,
+      decoration: InputDecoration(
+        hintText:    hint,
+        hintStyle:   AppTextStyles.bodyMedium.copyWith(color: AppColors.textDisabled),
+        filled:      true,
+        fillColor:   AppColors.surface,
+        border: OutlineInputBorder(
+          borderRadius: AppRadius.input,
+          borderSide:   const BorderSide(color: AppColors.border),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: AppRadius.input,
+          borderSide:   const BorderSide(color: AppColors.border),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: AppRadius.input,
+          borderSide:   const BorderSide(color: AppColors.primary, width: 1.5),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical:   AppSpacing.md,
+        ),
       ),
     );
   }
@@ -412,8 +430,8 @@ class _InputField extends StatelessWidget {
 // ─────────────────────────────────────────
 
 class _IncidentTypeGrid extends StatelessWidget {
-  final int                selected;
-  final ValueChanged<int>  onSelected;
+  final int               selected;
+  final ValueChanged<int> onSelected;
   const _IncidentTypeGrid({required this.selected, required this.onSelected});
 
   @override
@@ -424,35 +442,35 @@ class _IncidentTypeGrid extends StatelessWidget {
       itemCount:   _types.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount:   3,
-        mainAxisSpacing:  8,
-        crossAxisSpacing: 8,
-        childAspectRatio: 1.3,
+        mainAxisSpacing:  10,
+        crossAxisSpacing: 10,
+        childAspectRatio: 1.25,
       ),
       itemBuilder: (_, i) {
-        final isSelected = i == selected;
+        final sel = i == selected;
         return GestureDetector(
           onTap: () => onSelected(i),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 180),
             decoration: BoxDecoration(
-              color:        isSelected ? AppColors.primaryLight : AppColors.surface,
-              borderRadius: AppRadius.input,
+              color:        sel ? AppColors.primaryLight : AppColors.surface,
+              borderRadius: AppRadius.card,
               border: Border.all(
-                color: isSelected ? AppColors.primary : AppColors.border,
-                width: isSelected ? 1.5 : 1,
+                color: sel ? AppColors.primary : AppColors.border,
+                width: sel ? 1.5 : 1.0,
               ),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(_types[i].emoji, style: const TextStyle(fontSize: 20)),
-                const SizedBox(height: 4),
+                Text(_types[i].emoji, style: const TextStyle(fontSize: 22)),
+                const SizedBox(height: 6),
                 Text(
                   _types[i].label,
                   style: AppTextStyles.bodySmall.copyWith(
-                    color:      isSelected ? AppColors.primary : AppColors.textSecondary,
-                    fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
-                    fontSize:   10,
+                    fontSize:   11,
+                    color:      sel ? AppColors.primary : AppColors.textSecondary,
+                    fontWeight: sel ? FontWeight.w600 : FontWeight.w400,
                   ),
                 ),
               ],
@@ -474,35 +492,35 @@ class _LocationField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding:    const EdgeInsets.all(AppSpacing.cardPadding),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical:   AppSpacing.md,
+      ),
       decoration: BoxDecoration(
         color:        AppColors.surface,
-        borderRadius: AppRadius.card,
+        borderRadius: AppRadius.input,
         border:       Border.all(color: AppColors.border),
       ),
       child: Row(
         children: [
-          Container(
-            width:      38,
-            height:     38,
-            decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: AppRadius.input),
-            child: const Icon(Icons.location_on_rounded, color: AppColors.primary, size: 20),
-          ),
+          const Icon(Icons.location_on_rounded, color: AppColors.primary, size: 20),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Plateau, Dakar', style: AppTextStyles.bodySemiBold),
-                const SizedBox(height: 2),
+                const SizedBox(height: 3),
                 Text(
-                  '✓ Position GPS détectée automatiquement',
-                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.success, fontSize: 10),
+                  '✓ Position GPS détectée',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.success, fontSize: 11,
+                  ),
                 ),
               ],
             ),
           ),
-          const Icon(Icons.edit_location_alt_outlined, color: AppColors.textHint, size: 18),
+          const Icon(Icons.edit_outlined, color: AppColors.textHint, size: 17),
         ],
       ),
     );
@@ -519,24 +537,28 @@ class _DescriptionField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color:        AppColors.surface,
-        borderRadius: AppRadius.card,
-        border:       Border.all(color: AppColors.border),
-      ),
-      child: TextField(
-        controller:  controller,
-        maxLines:    4,
-        style:       AppTextStyles.bodyMedium,
-        decoration:  InputDecoration(
-          hintText:       'Décrivez brièvement la situation…',
-          hintStyle:      AppTextStyles.bodyMedium.copyWith(color: AppColors.textDisabled),
-          border:         InputBorder.none,
-          enabledBorder:  InputBorder.none,
-          focusedBorder:  InputBorder.none,
-          contentPadding: const EdgeInsets.all(AppSpacing.cardPadding),
+    return TextField(
+      controller: controller,
+      maxLines:   4,
+      style:      AppTextStyles.bodyMedium,
+      decoration: InputDecoration(
+        hintText:  'Décrivez brièvement la situation…',
+        hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textDisabled),
+        filled:    true,
+        fillColor: AppColors.surface,
+        border: OutlineInputBorder(
+          borderRadius: AppRadius.input,
+          borderSide:   const BorderSide(color: AppColors.border),
         ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: AppRadius.input,
+          borderSide:   const BorderSide(color: AppColors.border),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: AppRadius.input,
+          borderSide:   const BorderSide(color: AppColors.primary, width: 1.5),
+        ),
+        contentPadding: const EdgeInsets.all(AppSpacing.lg),
       ),
     );
   }
@@ -556,37 +578,25 @@ class _PhotoField extends StatelessWidget {
         // image_picker : ImagePicker().pickImage(source: ImageSource.camera)
       },
       child: Container(
-        padding:    const EdgeInsets.all(AppSpacing.cardPadding),
+        width:   double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
         decoration: BoxDecoration(
           color:        AppColors.surface,
-          borderRadius: AppRadius.card,
+          borderRadius: AppRadius.input,
           border:       Border.all(color: AppColors.border),
         ),
-        child: Row(
+        child: Column(
           children: [
-            Container(
-              width:      52,
-              height:     52,
-              decoration: BoxDecoration(
-                color:        AppColors.background,
-                borderRadius: AppRadius.input,
-                border:       Border.all(color: AppColors.border, width: 1.5),
-              ),
-              child: const Icon(Icons.add_a_photo_outlined, color: AppColors.textHint, size: 22),
+            const Icon(Icons.add_a_photo_outlined, color: AppColors.textHint, size: 28),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              'Appuyer pour ajouter une photo',
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
             ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Ajouter une photo', style: AppTextStyles.bodySemiBold),
-                  const SizedBox(height: 3),
-                  Text(
-                    'Aide les agents à évaluer la situation.',
-                    style: AppTextStyles.bodySmall,
-                  ),
-                ],
-              ),
+            const SizedBox(height: 3),
+            Text(
+              'Optionnel — aide les agents à évaluer',
+              style: AppTextStyles.bodySmall,
             ),
           ],
         ),
@@ -608,35 +618,24 @@ class _SubmitButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       top: false,
-      child: Padding(
+      child: Container(
+        width: double.infinity,
         padding: EdgeInsets.fromLTRB(
           r.pagePadding, AppSpacing.md,
           r.pagePadding, AppSpacing.lg,
         ),
+        decoration: const BoxDecoration(
+          color:  AppColors.surface,
+          border: Border(top: BorderSide(color: AppColors.border)),
+        ),
         child: SizedBox(
-          width:  double.infinity,
           height: r.primaryBtnHeight,
-          child: ElevatedButton.icon(
+          child: ElevatedButton(
             onPressed: onTap,
-            icon:  const Icon(Icons.send_rounded, size: 18),
-            label: Text('Envoyer le signalement', style: AppTextStyles.buttonLabel),
+            child: Text('Envoyer le signalement', style: AppTextStyles.buttonLabel),
           ),
         ),
       ),
     );
-  }
-}
-
-// ─────────────────────────────────────────
-//  LABEL DE SECTION
-// ─────────────────────────────────────────
-
-class _SectionLabel extends StatelessWidget {
-  final String label;
-  const _SectionLabel({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(label.toUpperCase(), style: AppTextStyles.sectionLabel);
   }
 }
