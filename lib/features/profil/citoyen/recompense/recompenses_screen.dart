@@ -4,6 +4,10 @@ import '../../../../core/responsive/app_responsive.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../widget/app_header.dart';
+import '../../../../widget/info_step.dart';
+import '../../../../widget/recomprense_item.dart';
+import '../../../../widget/stat_card.dart';
 
 class RecompensesScreen extends StatefulWidget {
   const RecompensesScreen({super.key});
@@ -14,6 +18,49 @@ class RecompensesScreen extends StatefulWidget {
 
 class _RecompensesScreenState extends State<RecompensesScreen> {
   bool _soldeVisible = true;
+
+  void _showInfoDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor:  AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.card),
+        title: Row(
+          children: [
+            Container(
+              width:      36,
+              height:     36,
+              decoration: BoxDecoration(
+                color:        AppColors.primaryLight,
+                borderRadius: AppRadius.input,
+              ),
+              child: const Icon(Icons.card_giftcard_rounded, color: AppColors.primary, size: 20),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Text('Comment ça marche ?', style: AppTextStyles.bodySemiBold),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            InfoStep(step: '1', text: 'Faites un signalement d\'incident via l\'application.'),
+            InfoStep(step: '2', text: 'Votre signalement est vérifié et validé par les autorités compétentes.'),
+            InfoStep(step: '3', text: 'Une récompense en FCFA est automatiquement créditée sur votre solde.'),
+            InfoStep(step: '4', text: 'Retirez vos gains vers Wave ou Orange Money en un clic.'),
+          ],
+        ),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('J\'ai compris', style: AppTextStyles.buttonLabel),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,39 +79,27 @@ class _RecompensesScreenState extends State<RecompensesScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            // Header simple sans fond rouge
-            Row(
-              children: [
-                InkWell(
-                  onTap: () {
-                    if (context.canPop()) context.pop();
-                    else context.goNamed('dashboard');
-                  },
-                  borderRadius: AppRadius.input,
-                  child: Container(
-                    width:      34,
-                    height:     34,
-                    decoration: BoxDecoration(
-                      color:        AppColors.surface,
-                      borderRadius: AppRadius.input,
-                      border:       Border.all(color: AppColors.border),
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: AppColors.textPrimary,
-                      size:  16,
-                    ),
+            AppHeader(
+              title:         'Mes récompenses',
+              subtitle:      'Vos gains citoyen',
+              fallbackRoute: 'dashboard',
+              action: GestureDetector(
+                onTap: () => _showInfoDialog(context),
+                child: Container(
+                  width:      34,
+                  height:     34,
+                  decoration: BoxDecoration(
+                    color:        AppColors.surface,
+                    borderRadius: AppRadius.chip,
+                    border:       Border.all(color: AppColors.border),
+                  ),
+                  child: const Icon(
+                    Icons.help_outline_rounded,
+                    color: AppColors.textSecondary,
+                    size:  18,
                   ),
                 ),
-                const SizedBox(width: AppSpacing.md),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Mes récompenses', style: AppTextStyles.bodySemiBold),
-                    Text('Vos gains citoyen', style: AppTextStyles.bodySmall),
-                  ],
-                ),
-              ],
+              ),
             ),
 
             SizedBox(height: r.spacing(small: 20, normal: 24, large: 28)),
@@ -87,28 +122,28 @@ class _RecompensesScreenState extends State<RecompensesScreen> {
             ),
             const SizedBox(height: AppSpacing.md),
 
-            const _RecompenseItem(
+            const RecompenseItem(
               title:     'Accident de la route validé',
               ref:       'SIG-2026-00089',
               amount:    '+1 500 FCFA',
               date:      'il y a 2h',
               isPending: false,
             ),
-            const _RecompenseItem(
+            const RecompenseItem(
               title:     'Trouble de voisinage validé',
               ref:       'SIG-2026-00071',
               amount:    '+1 000 FCFA',
               date:      'hier',
               isPending: false,
             ),
-            const _RecompenseItem(
+            const RecompenseItem(
               title:     'Incendie — Marché validé',
               ref:       'SIG-2026-00054',
               amount:    '+2 000 FCFA',
               date:      'il y a 3j',
               isPending: false,
             ),
-            const _RecompenseItem(
+            const RecompenseItem(
               title:     'Voirie — Rue Moussé',
               ref:       'SIG-2026-00038',
               amount:    'En attente',
@@ -116,65 +151,6 @@ class _RecompensesScreenState extends State<RecompensesScreen> {
               isPending: true,
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────
-//  HEADER
-// ─────────────────────────────────────────
-
-class _Header extends StatelessWidget {
-  final AppResponsive r;
-  const _Header({required this.r});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: ColoredBox(
-        color: AppColors.primary,
-        child: SafeArea(
-          bottom: false,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(r.pagePadding, 12, r.pagePadding, 22),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                InkWell(
-                  onTap: () {
-                    if (context.canPop()) context.pop();
-                    else context.goNamed('dashboard');
-                  },
-                  borderRadius: AppRadius.input,
-                  child: Container(
-                    width:      34,
-                    height:     34,
-                    decoration: BoxDecoration(
-                      color:        Colors.white.withOpacity(0.18),
-                      borderRadius: AppRadius.input,
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: AppColors.textOnPrimary,
-                      size:  16,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  'Mes récompenses',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textOnPrimary.withOpacity(0.65),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text('Vos gains citoyen', style: AppTextStyles.screenTitle),
-              ],
-            ),
-          ),
         ),
       ),
     );
@@ -348,132 +324,18 @@ class _StatsRow extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: _StatCard(value: '4 500', label: 'Total gagné\n(FCFA)'),
+          child: StatCard(value: '4 500', label: 'Total gagné\n(FCFA)'),
         ),
         const SizedBox(width: AppSpacing.md),
         Expanded(
-          child: _StatCard(value: '3', label: 'Signalements\nvalidés'),
+          child: StatCard(value: '3', label: 'Signalements\nvalidés'),
         ),
         const SizedBox(width: AppSpacing.md),
         Expanded(
-          child: _StatCard(value: '1', label: 'En attente\nde validation'),
+          child: StatCard(value: '1', label: 'En attente\nde validation'),
         ),
       ],
     );
   }
 }
 
-class _StatCard extends StatelessWidget {
-  final String value;
-  final String label;
-  const _StatCard({required this.value, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding:    const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color:        AppColors.surface,
-        borderRadius: AppRadius.card,
-        border:       Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: AppTextStyles.cardTitle.copyWith(color: AppColors.primary),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: AppTextStyles.bodySmall.copyWith(fontSize: 9),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────
-//  ITEM RÉCOMPENSE
-// ─────────────────────────────────────────
-
-class _RecompenseItem extends StatelessWidget {
-  final String title;
-  final String ref;
-  final String amount;
-  final String date;
-  final bool   isPending;
-
-  const _RecompenseItem({
-    required this.title,
-    required this.ref,
-    required this.amount,
-    required this.date,
-    required this.isPending,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin:     const EdgeInsets.only(bottom: AppSpacing.sm),
-      padding:    const EdgeInsets.all(AppSpacing.cardPadding),
-      decoration: BoxDecoration(
-        color:        AppColors.surface,
-        borderRadius: AppRadius.card,
-        border:       Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        children: [
-          // Icône
-          Container(
-            width:      40,
-            height:     40,
-            decoration: BoxDecoration(
-              color:        isPending ? AppColors.warningLight : AppColors.successLight,
-              borderRadius: AppRadius.input,
-            ),
-            child: Icon(
-              isPending
-                  ? Icons.hourglass_empty_rounded
-                  : Icons.check_circle_outline_rounded,
-              color: isPending ? AppColors.warning : AppColors.success,
-              size:  20,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-
-          // Infos
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: AppTextStyles.bodySemiBold.copyWith(fontSize: 12),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '$ref · $date',
-                  style: AppTextStyles.bodySmall.copyWith(fontSize: 9),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-
-          // Montant
-          Text(
-            amount,
-            style: AppTextStyles.bodySemiBold.copyWith(
-              color:    isPending ? AppColors.warning : AppColors.success,
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
