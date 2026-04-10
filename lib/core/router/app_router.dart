@@ -4,6 +4,8 @@ import '../../features/auth/otp_screen.dart';
 import '../../features/auth/phone_screen.dart';
 import '../../features/auth/pin_screen.dart';
 import '../../features/profil/citoyen/dashabord/dashbaord_citoyen.dart';
+import '../../features/profil/citoyen/dossier/dossier_screen.dart';
+import '../../features/profil/citoyen/profil/profil_screen.dart';
 import '../../features/profil/citoyen/recompense/recompenses_screen.dart';
 import '../../features/report/tracking_screen.dart';
 import '../../features/starter/onbaording_screen.dart';
@@ -33,6 +35,7 @@ class AppRouter {
 
   static GoRouter create() {
     return GoRouter(
+      //initialLocation: AppRoutes.splash,
       initialLocation: AppRoutes.dashboard,
       routes: [
         GoRoute(
@@ -101,16 +104,25 @@ class AppRouter {
           name:    'recompenses',
           builder: (context, state) => const RecompensesScreen(),
         ),
+
+        GoRoute(
+          path:    '/profile',
+          name:    'profile',
+          builder: (context, state) => const ProfilScreen(),
+        ),
+
         GoRoute(
           path:    AppRoutes.register,
           name:    'register',
           builder: (context, state) => const _Placeholder('Inscription'),
         ),
+
         GoRoute(
-          path:    AppRoutes.profile,
-          name:    'profile',
-          builder: (context, state) => const _Placeholder('Mon espace'),
+          path:    '/dossiers',
+          name:    'dossiers',
+          builder: (context, state) => const DossiersScreen(),
         ),
+
       ],
       errorBuilder: (context, state) => const _Placeholder('Page introuvable'),
     );
