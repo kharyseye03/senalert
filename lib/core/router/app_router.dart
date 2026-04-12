@@ -3,6 +3,10 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/otp_screen.dart';
 import '../../features/auth/phone_screen.dart';
 import '../../features/auth/pin_screen.dart';
+import '../../features/auth/police_login_screen.dart';
+import '../../features/profil/agent/dashbaord/police_dashboard_screen.dart';
+import '../../features/profil/agent/dossier/police_dossiers_screen.dart';
+import '../../features/profil/agent/profil/police_profil_screen.dart';
 import '../../features/profil/citoyen/dashabord/dashbaord_citoyen.dart';
 import '../../features/profil/citoyen/dossier/dossier_screen.dart';
 import '../../features/profil/citoyen/profil/profil_screen.dart';
@@ -28,6 +32,7 @@ class AppRoutes {
   static const String register     = '/register';
   static const String profile      = '/profile';
   static const String dashboard      = '/dashboard';
+  static const String dashboard_police      = '/police_dashboard';
 }
 
 class AppRouter {
@@ -36,7 +41,8 @@ class AppRouter {
   static GoRouter create() {
     return GoRouter(
       //initialLocation: AppRoutes.splash,
-      initialLocation: AppRoutes.dashboard,
+      //initialLocation: AppRoutes.dashboard,
+      initialLocation: AppRoutes.dashboard_police,
       routes: [
         GoRoute(
           path:    AppRoutes.splash,
@@ -121,6 +127,30 @@ class AppRouter {
           path:    '/dossiers',
           name:    'dossiers',
           builder: (context, state) => const DossiersScreen(),
+        ),
+
+        GoRoute(
+          path:    '/police-login',
+          name:    'police_login',
+          builder: (context, state) => const PoliceLoginScreen(),
+        ),
+
+        GoRoute(
+          path:    AppRoutes.dashboard_police,
+          name:    'police_dashboard',
+          builder: (context, state) => const PoliceDashboardScreen(),
+        ),
+
+        GoRoute(
+          path:    '/police-dossiers',
+          name:    'police_dossiers',
+          builder: (context, state) => const PoliceDossiersScreen(),
+        ),
+
+        GoRoute(
+          path:    '/police-profil',
+          name:    'police_profil',
+          builder: (context, state) => const PoliceProfilScreen(),
         ),
 
       ],
