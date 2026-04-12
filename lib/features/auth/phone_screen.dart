@@ -138,13 +138,13 @@ class _PhoneScreenState extends State<PhoneScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Déjà un compte ? ',
+                            'Acceder a mon ',
                             style: AppTextStyles.bodySmall,
                           ),
                           GestureDetector(
-                            onTap: () => context.goNamed('login'),
+                            onTap: () => context.goNamed('police_login'),
                             child: Text(
-                              'Se connecter',
+                              'espace Policier',
                               style: AppTextStyles.bodySmall.copyWith(
                                 color:      AppColors.primary,
                                 fontWeight: FontWeight.w600,
